@@ -1,0 +1,58 @@
+{% extends "flatpages/default.html" %}
+
+{% load custom_filters %}  <!-- Загружаем наши фильтры -->
+
+{% block content %}
+    <article>
+        <h1>{{ news.title|censor }}</h1>  <!-- Цензурируем заголовок -->
+
+        <!-- Дата в формате день.месяц.год -->
+        <p class="text-muted">
+            Опубликовано: {{ news.created_at|date:"d.m.Y" }}
+            {% if news.author %}
+                | Автор: {{ news.author.user.username }}
+            {% endif %}
+        </p>
+
+        <hr>
+
+        <!-- Полный текст статьи с цензурой -->
+        <div class="news-content" style="line-height: 1.6; font-size: 1.1em;">
+            {{ news.content|censor|linebreaks }}  <!-- Цензурируем текст -->
+        </div>
+
+        <hr>
+
+        <!-- Категории -->
+        <p>
+            <strong>Категории:</strong>
+            {% for category in news.categories.all %}
+                <span style="background-color: #f0f0f0; padding: 3px 10px; margin-right: 5px; border-radius: 3px;">{{ category.name }}</span>
+            {% endfor %}
+        </p>
+
+        <!-- Рейтинг -->
+        <p><strong>Рейтинг статьи:</strong> {{ news.rating }}</p>
+
+        <!-- Комментарии (комментарии не цензурируем, так как в задании просят только статьи) -->
+        <h3>Комментарии ({{ news.comments.count }})</h3>
+
+        {% if news.comments.all %}
+            {% for comment in news.comments.all %}
+                <div style="border-left: 3px solid #007bff; padding-left: 15px; margin-bottom: 20px;">
+                    <p style="margin-bottom: 5px;">
+                        <strong>{{ comment.user.username }}</strong>
+                        <span style="color: #6c757d; font-size: 0.9em;">| {{ comment.created_at|date:"d.m.Y H:i" }} | Рейтинг: {{ comment.rating }}</span>
+                    </p>
+                    <p>{{ comment.text }}</p>  <!-- Комментарии без цензуры -->
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Комментариев пока нет.</p>
+        {% endif %}
+
+        <p style="margin-top: 30px;">
+            <a href="{% url 'news_list' %}" style="text-decoration: none;">← Вернуться к списку новостей</a>
+        </p>
+    </article>
+{% endblock %}
