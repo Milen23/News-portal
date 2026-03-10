@@ -1,0 +1,28 @@
+{% extends "flatpages/default.html" %}
+
+{% block content %}
+    <h1>Вход на сайт</h1>
+
+    {% if form.errors %}
+        <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; border-radius: 5px;">
+            Неправильное имя пользователя или пароль. Попробуйте снова.
+        </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 15px;">
+            <label for="{{ form.username.id_for_label }}">Имя пользователя:</label><br>
+            {{ form.username }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="{{ form.password.id_for_label }}">Пароль:</label><br>
+            {{ form.password }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Войти</button>
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+{% endblock %}

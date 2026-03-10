@@ -1,0 +1,44 @@
+{% extends "flatpages/default.html" %}
+
+{% load custom_filters %}
+
+{% block content %}
+    <h1>Поиск новостей</h1>
+    
+    <p><a href="{% url 'news_list' %}">← Вернуться ко всем новостям</a></p>
+    
+    <hr>
+    
+    <!-- Форма поиска -->
+    <form method="get" class="search-form">
+        <h3>Критерии поиска:</h3>
+        
+        <div class="form-group">
+            {{ filter.form.as_p }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Найти</button>
+    </form>
+    
+    <hr>
+    
+    <h2>Результаты поиска ({{ filter.qs.count }})</h2>
+    
+    {% if filter.qs %}
+        {% for post in filter.qs %}
+            <div class="news-item">
+                <h3>
+                    <a href="{% url 'news_detail' post.id %}">{{ post.title|censor }}</a>
+                </h3>
+                <p class="text-muted">
+                    {{ post.created_at|date:"d.m.Y H:i" }} | 
+                    Автор: {{ post.author.user.username }}
+                </p>
+                <p>{{ post.content|censor|truncatewords:30 }}</p>
+                <hr>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Новостей по заданным критериям не найдено.</p>
+    {% endif %}
+{% endblock %}

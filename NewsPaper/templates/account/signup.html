@@ -1,0 +1,40 @@
+{% extends "flatpages/default.html" %}
+
+{% block content %}
+    <h1>Регистрация</h1>
+    
+    {% if form.errors %}
+        <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; border-radius: 5px;">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label for="id_email">Email:</label><br>
+            <input type="email" name="email" id="id_email" style="width: 300px; padding: 5px;" required>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="id_password1">Пароль:</label><br>
+            <input type="password" name="password1" id="id_password1" style="width: 300px; padding: 5px;" required>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="id_password2">Подтверждение пароля:</label><br>
+            <input type="password" name="password2" id="id_password2" style="width: 300px; padding: 5px;" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+    </form>
+    
+    <p style="margin-top: 20px;">
+        Уже есть аккаунт? <a href="{% url 'account_login' %}">Войти</a>
+    </p>
+{% endblock %}

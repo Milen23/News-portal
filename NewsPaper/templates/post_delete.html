@@ -1,0 +1,13 @@
+{% extends "flatpages/default.html" %}
+
+{% block content %}
+    <h1>Удаление {{ post.get_post_type_display }}</h1>
+    
+    <p>Вы уверены, что хотите удалить "{{ object.title }}"?</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a href="{% url 'news_list' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+{% endblock %}
