@@ -41,10 +41,12 @@ INSTALLED_APPS = [
     'news',
     'django_filters',
     'django.contrib.sites',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.yandex',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -146,19 +148,13 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Требуется подтверждение email
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Обязательное подтверждение email
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True  # Подтверждение по ссылке
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3  # Ссылка действует 3 дня
 
-# URL для входа
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/news/'
-LOGOUT_REDIRECT_URL = '/news/'
-
-# Email настройки (для разработки)
+# Настройки email (для разработки - в консоль)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -173,3 +169,11 @@ SOCIALACCOUNT_PROVIDERS = {
         'VERIFIED_EMAIL': True,
     }
 }
+
+# Кастомный адаптер для allauth
+ACCOUNT_ADAPTER = 'news.adapters.CustomAccountAdapter'
+
+SITE_ID = 2
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # секунд

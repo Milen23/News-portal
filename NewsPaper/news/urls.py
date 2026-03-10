@@ -5,6 +5,8 @@ from .views import (
     NewsCreateView, NewsUpdateView, NewsDeleteView,
     ArticleCreateView, ArticleUpdateView, ArticleDeleteView, add_comment
 )
+from .views import subscribe_to_category, unsubscribe_from_category
+from .views import CategoryListView
 
 urlpatterns = [
     # Список и детали
@@ -27,4 +29,8 @@ urlpatterns = [
     path('<int:pk>/comment/', add_comment, name='add_comment'),
     path('register/', UserRegisterView.as_view(), name='register'),
     path('become-author/', become_author, name='become_author'),
+
+    path('subscribe/<int:category_id>/', subscribe_to_category, name='subscribe'),
+    path('unsubscribe/<int:category_id>/', unsubscribe_from_category, name='unsubscribe'),
+    path('categories/', CategoryListView.as_view(), name='category_list'),
 ]

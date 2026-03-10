@@ -30,18 +30,25 @@
 
         <hr>
 
-        <!-- ОТОБРАЖЕНИЕ КАТЕГОРИЙ -->
-        <p>
-            <strong>Категории:</strong>
-            {% for category in news.categories.all %}
-                <span style="background-color: #e9ecef; padding: 3px 10px; margin-right: 5px; border-radius: 3px; display: inline-block; margin-bottom: 5px;">
-                    {{ category.name }}
-                </span>
-            {% empty %}
-                <span>Категории не выбраны</span>
-            {% endfor %}
-        </p>
-        <!-- КОНЕЦ БЛОКА КАТЕГОРИЙ -->
+        <!-- Категории с кнопками подписки -->
+<p>
+    <strong>Категории:</strong>
+    {% for category in news.categories.all %}
+        <span style="background-color: #e9ecef; padding: 3px 10px; margin-right: 5px; border-radius: 3px; display: inline-block; margin-bottom: 5px;">
+            {{ category.name }}
+
+            {% if user.is_authenticated %}
+                {% if user in category.subscribers.all %}
+                    <a href="{% url 'unsubscribe' category.id %}" style="color: #dc3545; margin-left: 5px; text-decoration: none;" title="Отписаться">✕</a>
+                {% else %}
+                    <a href="{% url 'subscribe' category.id %}" style="color: #28a745; margin-left: 5px; text-decoration: none;" title="Подписаться">✓</a>
+                {% endif %}
+            {% endif %}
+        </span>
+    {% empty %}
+        <span>Категории не выбраны</span>
+    {% endfor %}
+</p>
 
         <!-- КОММЕНТАРИИ -->
         <h3>Комментарии ({{ news.comments.count }})</h3>

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 
 
+
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
@@ -28,6 +29,11 @@ class Author(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    subscribers = models.ManyToManyField(
+        User,
+        related_name='subscribed_categories',
+        blank=True
+    )
 
     def __str__(self):
         return self.name
