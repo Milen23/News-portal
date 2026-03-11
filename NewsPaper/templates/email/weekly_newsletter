@@ -1,0 +1,22 @@
+Здравствуй, {{ username }}!
+
+Еженедельная рассылка News Portal
+Период: {{ week_ago }} - {{ today }}
+
+В разделе "{{ category.name }}" появились новые статьи (всего: {{ posts|length }}):
+
+{% for post in posts %}
+==============================
+Название: {{ post.title }}
+Автор: {{ post.author.user.username }}
+Дата: {{ post.created_at|date:"d.m.Y H:i" }}
+
+{{ post.content|truncatewords:30 }}
+
+Читать полностью: http://{{ site.domain }}{% url 'news_detail' post.id %}
+==============================
+{% endfor %}
+
+--
+Чтобы отписаться от рассылки, перейдите в раздел "Категории" на сайте:
+http://{{ site.domain }}{% url 'category_list' %}

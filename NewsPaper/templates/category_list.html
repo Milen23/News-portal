@@ -1,0 +1,30 @@
+{% extends "flatpages/default.html" %}
+
+{% block content %}
+    <h1>Категории</h1>
+    
+    <div class="categories">
+        {% for category in categories %}
+            <div class="category-item" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px;">
+                <h3>{{ category.name }}</h3>
+                
+                {% if user.is_authenticated %}
+                    {% if category.user_is_subscribed %}
+                        <p>
+                            <span style="color: green;">✓ Вы подписаны</span>
+                            <a href="{% url 'unsubscribe' category.id %}" class="btn btn-warning btn-sm">Отписаться</a>
+                        </p>
+                    {% else %}
+                        <p>
+                            <a href="{% url 'subscribe' category.id %}" class="btn btn-success btn-sm">Подписаться на новости</a>
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p><a href="{% url 'account_login' %}">Войдите</a>, чтобы подписаться</p>
+                {% endif %}
+                
+                <p>Всего статей: {{ category.post_set.count }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
