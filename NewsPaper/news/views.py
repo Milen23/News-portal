@@ -20,6 +20,8 @@ from .models import Category
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import ValidationError
+from .tasks import send_notification_to_subscribers, send_welcome_email
+
 
 
 
@@ -92,23 +94,24 @@ def become_author(request):
 
     return redirect('news_list')
 
+
 class UserRegisterView(CreateView):
     form_class = UserCreationForm
-    template_name = 'account/signup.html'  # или 'registration/register.html'
-    success_url = reverse_lazy('account_login')  # или 'login'
+    template_name = 'account/signup.html'
+    success_url = reverse_lazy('account_login')
 
     def form_valid(self, form):
-        # Создаем пользователя
         response = super().form_valid(form)
-
-        # Добавляем пользователя в группу common
         user = self.object
+
+        # Добавляем в группу common
         common_group = Group.objects.get(name='common')
         user.groups.add(common_group)
 
-        # Добавляем сообщение об успешной регистрации
-        messages.success(self.request, 'Регистрация прошла успешно! Теперь вы можете войти.')
+        # Асинхронная отправка приветственного письма
+        send_welcome_email.delay(user.id)
 
+        messages.success(self.request, 'Регистрация прошла успешно! Проверьте email для подтверждения.')
         return response
 
 
@@ -158,7 +161,7 @@ class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         author, created = Author.objects.get_or_create(user=self.request.user)
 
-        # Проверяем, сколько новостей создал пользователь за последние 24 часа
+        # Проверяем лимит на 3 новости в сутки
         one_day_ago = timezone.now() - timedelta(days=1)
         news_count_today = Post.objects.filter(
             author=author,
@@ -173,7 +176,12 @@ class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         post = form.save(commit=False)
         post.post_type = 'NW'
         post.author = author
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # Асинхронная отправка уведомлений подписчикам
+        send_notification_to_subscribers.delay(post.id)
+
+        return response
 
     def handle_no_permission(self):
         messages.warning(self.request, 'У вас нет прав на создание новостей. Только авторы могут это делать!')
@@ -223,7 +231,7 @@ class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
     def form_valid(self, form):
         author, created = Author.objects.get_or_create(user=self.request.user)
 
-        # Проверяем, сколько статей создал пользователь за последние 24 часа
+        # Проверяем лимит на 3 статьи в сутки
         one_day_ago = timezone.now() - timedelta(days=1)
         articles_count_today = Post.objects.filter(
             author=author,
@@ -238,7 +246,12 @@ class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         post = form.save(commit=False)
         post.post_type = 'AR'
         post.author = author
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # Асинхронная отправка уведомлений подписчикам
+        send_notification_to_subscribers.delay(post.id)
+
+        return response
 
 # редактировать статью
 class ArticleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):

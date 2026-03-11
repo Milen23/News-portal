@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.yandex',
     'django_apscheduler',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -177,3 +179,36 @@ SITE_ID = 2
 
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # секунд
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# Убираем SSL опции - они не нужны
+# CELERY_REDIS_BACKEND_USE_SSL = False
+# CELERY_REDIS_BROKER_USE_SSL = False
+
+# Добавляем транспортные опции
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'visibility_timeout': 3600,
+    'retry_on_timeout': True,
+    'socket_connect_timeout': 30,
+    'socket_timeout': 30,
+    'health_check_interval': 30,
+}
+
+
+# Настройки задач
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Важно для Windows
+CELERY_WORKER_POOL = 'solo'
+
+# Важные настройки для стабильного соединения
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_CONNECTION_MAX_RETRIES = 100
